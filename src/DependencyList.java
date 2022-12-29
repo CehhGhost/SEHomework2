@@ -21,8 +21,7 @@ public class DependencyList {
         }
     }
     private void GetFilesParents(File file) {
-
     }
     private final File _mainDir;
-    private Map<File, List<File>> _resultMap;
+    private Map<Node, List<File>> _resultMap;
 }
