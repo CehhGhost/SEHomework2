@@ -15,10 +15,13 @@ public class DependencyList {
                 if (f.isDirectory()) {
                     SearchThroughDirs(f);
                 } else if (f.isFile()) {
-
+                    GetFilesParents(f);
                 }
             }
         }
+    }
+    private void GetFilesParents(File file) {
+
     }
     private final File _mainDir;
     private Map<File, List<File>> _resultMap;
