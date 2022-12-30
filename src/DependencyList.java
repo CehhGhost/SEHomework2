@@ -48,10 +48,10 @@ public final class DependencyList {
                         fileDir.append(line.charAt(i));
                     }
                     fileDir.insert(0, _mainDir.getParent() + "\\");
-                    if (!_resultMap.containsKey(file.getAbsolutePath())) {
-                        _resultMap.put(file.getAbsolutePath(), new ArrayList<String>());
+                    if (!_resultMap.containsKey(fileDir.toString())) {
+                        _resultMap.put(fileDir.toString(), new ArrayList<String>());
                     }
-                    _resultMap.get(file.getAbsolutePath()).add(fileDir.toString());
+                    _resultMap.get(fileDir.toString()).add(file.getAbsolutePath());
                     noParents = false;
                 }
             } while (line != null);
@@ -63,5 +63,5 @@ public final class DependencyList {
         }
     }
     private final File _mainDir;
-    private Map<String, List<String>> _resultMap;
+    private final Map<String, List<String>> _resultMap;
 }
