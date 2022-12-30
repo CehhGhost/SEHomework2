@@ -4,8 +4,8 @@ import java.util.*;
 public final class DependencyList {
     public DependencyList(File mainDir) {
         _mainDir = mainDir;
-        _resultMap = new HashMap<Node, List<Node>>();
-        _resultMap.put(null, new ArrayList<Node>());
+        _resultMap = new HashMap<>();
+        _resultMap.put(null, new ArrayList<>());
         SearchThroughDirs(_mainDir);
         for (var key : _resultMap.keySet()) {
             if (key != null) {
@@ -40,7 +40,6 @@ public final class DependencyList {
             do {
                 line = fileReader.readLine();
                 if (line != null && line.contains("require")) {
-                    int index = line.indexOf('‘');
                     StringBuilder fileDir = new StringBuilder();
                     for (int i = line.indexOf('‘') + 1; line.charAt(i) != '’'; ++i) {
                         fileDir.append(line.charAt(i));
@@ -57,7 +56,7 @@ public final class DependencyList {
                     }
                     if (!flag) {
                         parent = new Node(fileDir.toString());
-                        _resultMap.put(parent, new ArrayList<Node>());
+                        _resultMap.put(parent, new ArrayList<>());
                     }
                     _resultMap.get(parent).add(thisNode);
                     noParents = false;
@@ -70,6 +69,24 @@ public final class DependencyList {
             return;
         }
     }
+
+    private boolean topologicalSort(Node node) {
+        if (node.get_color() == Node.Color.GREY) {
+            return false;
+        } else if (node.get_color() == Node.Color.WHITE) {
+            node.set_color(Node.Color.GREY);
+            var children = _resultMap.get(node);
+            for (Node child : children) {
+                boolean flag = topologicalSort(child);
+                if (!flag) {
+                    return false;
+                }
+            }
+            node.set_color(Node.Color.BLACK);
+        }
+        return true;
+    }
+
     private final File _mainDir;
     private final Map<Node, List<Node>> _resultMap;
 }
