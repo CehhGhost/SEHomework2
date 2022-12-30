@@ -1,22 +1,19 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class DependencyList {
     public DependencyList(File mainDir) {
         _mainDir = mainDir;
-        _resultMap = new HashMap<String, List<String>>();
-        _resultMap.put(null, new ArrayList<String>());
+        _resultMap = new HashMap<Node, List<Node>>();
+        _resultMap.put(null, new ArrayList<Node>());
         SearchThroughDirs(_mainDir);
         for (var key : _resultMap.keySet()) {
             if (key != null) {
-                System.out.print(new File(key).getName());
+                System.out.print(new File(key.get_path()).getName());
             }
             System.out.print(": ");
             for (var value : _resultMap.get(key)) {
-                System.out.print(new File(value).getName() + " ");
+                System.out.print(new File(value.get_path()).getName() + " ");
             }
             System.out.print("\r\n");
         }
@@ -39,6 +36,7 @@ public final class DependencyList {
         try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
             boolean noParents = true;
             String line;
+            Node thisNode = new Node(file.getAbsolutePath());
             do {
                 line = fileReader.readLine();
                 if (line != null && line.contains("require")) {
@@ -48,20 +46,30 @@ public final class DependencyList {
                         fileDir.append(line.charAt(i));
                     }
                     fileDir.insert(0, _mainDir.getParent() + "\\");
-                    if (!_resultMap.containsKey(fileDir.toString())) {
-                        _resultMap.put(fileDir.toString(), new ArrayList<String>());
+                    boolean flag = false;
+                    Node parent = null;
+                    for (var key : _resultMap.keySet()) {
+                        if (key != null && Objects.equals(key.get_path(), fileDir.toString())) {
+                            flag = true;
+                            parent = key;
+                            break;
+                        }
                     }
-                    _resultMap.get(fileDir.toString()).add(file.getAbsolutePath());
+                    if (!flag) {
+                        parent = new Node(fileDir.toString());
+                        _resultMap.put(parent, new ArrayList<Node>());
+                    }
+                    _resultMap.get(parent).add(thisNode);
                     noParents = false;
                 }
             } while (line != null);
             if (noParents) {
-                _resultMap.get(null).add(file.getAbsolutePath());
+                _resultMap.get(null).add(thisNode);
             }
         } catch (IOException e) {
             return;
         }
     }
     private final File _mainDir;
-    private final Map<String, List<String>> _resultMap;
+    private final Map<Node, List<Node>> _resultMap;
 }
