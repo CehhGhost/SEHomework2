@@ -5,10 +5,10 @@ public final class DependencyList {
     public DependencyList(File mainDir) {
         _mainDir = mainDir;
         _resultMap = new HashMap<>();
-        _resultMap.put(null, new ArrayList<>());
+        _resultMap.put(NILL, new ArrayList<>());
         SearchThroughDirs(_mainDir);
-        for (var key : _resultMap.keySet()) {
-            if (key != null) {
+        /*for (var key : _resultMap.keySet()) {
+            if (key.get_path() != null) {
                 System.out.print(new File(key.get_path()).getName());
             }
             System.out.print(": ");
@@ -16,6 +16,18 @@ public final class DependencyList {
                 System.out.print(new File(value.get_path()).getName() + " ");
             }
             System.out.print("\r\n");
+        }*/
+        boolean stop = true;
+        for (var node : _resultMap.get(NILL)) {
+            stop = TopologicalSort(node);
+            if (!stop) {
+                break;
+            }
+        }
+        if (stop) {
+            Print();
+        } else {
+            System.out.println("Found circles, check your files!");
         }
     }
 
@@ -44,9 +56,9 @@ public final class DependencyList {
                     for (int i = line.indexOf('‘') + 1; line.charAt(i) != '’'; ++i) {
                         fileDir.append(line.charAt(i));
                     }
-                    fileDir.insert(0, _mainDir.getParent() + "\\");
+                    fileDir.insert(0, _mainDir.getAbsolutePath() + "\\");
                     boolean flag = false;
-                    Node parent = null;
+                    Node parent = NILL;
                     for (var key : _resultMap.keySet()) {
                         if (key != null && Objects.equals(key.get_path(), fileDir.toString())) {
                             flag = true;
@@ -63,30 +75,62 @@ public final class DependencyList {
                 }
             } while (line != null);
             if (noParents) {
-                _resultMap.get(null).add(thisNode);
+                if (GetNode(thisNode.get_path()) == null) {
+                    _resultMap.get(NILL).add(thisNode);
+                } else {
+                    _resultMap.get(NILL).add(GetNode(thisNode.get_path()));
+                }
             }
         } catch (IOException e) {
             return;
         }
     }
 
-    private boolean topologicalSort(Node node) {
+    private boolean TopologicalSort(Node node) {
         if (node.get_color() == Node.Color.GREY) {
             return false;
         } else if (node.get_color() == Node.Color.WHITE) {
             node.set_color(Node.Color.GREY);
             var children = _resultMap.get(node);
-            for (Node child : children) {
-                boolean flag = topologicalSort(child);
-                if (!flag) {
-                    return false;
+            if (children != null) {
+                for (Node child : children) {
+                    boolean flag = TopologicalSort(child);
+                    if (!flag) {
+                        return false;
+                    }
                 }
             }
             node.set_color(Node.Color.BLACK);
+            _resultList.add(0, node);
         }
         return true;
     }
 
-    private final File _mainDir;
-    private final Map<Node, List<Node>> _resultMap;
+    private void Print() {
+        for (var item : _resultList) {
+            try (BufferedReader fileReader = new BufferedReader(new FileReader(item.get_path()))) {
+                String line;
+                do {
+                    line = fileReader.readLine();
+                    if (line != null) {
+                        System.out.println(line);
+                    }
+                } while (line != null);
+            } catch (IOException e) {
+                return;
+            }
+        }
+    }
+    private Node GetNode(String path) {
+        for (var node : _resultMap.keySet()) {
+            if (node != null && Objects.equals(node.get_path(), path)) {
+                return node;
+            }
+        }
+        return null;
+    }
+    private File _mainDir;
+    private Map<Node, List<Node>> _resultMap;
+    private List<Node> _resultList = new LinkedList<Node>();
+    private final Node NILL = new Node(null);
 }

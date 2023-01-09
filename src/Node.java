@@ -3,6 +3,7 @@ public class Node {
         _color = Color.WHITE;
         _path = path;
     }
+
     public enum Color {
         BLACK,
         GREY,
