@@ -24,7 +24,7 @@ public final class DependencyList {
                 break;
             }
         }
-        if (stop) {
+        if (stop && _resultMap.get(NILL).size() != 0) {
             Print();
         } else {
             System.out.println("Found circles, check your files!");
