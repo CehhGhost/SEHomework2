@@ -1,7 +1,15 @@
 import java.io.*;
 import java.util.*;
 
+/**
+ * Публичный класс для создания и работы со списком смежности
+ */
 public final class DependencyList {
+    /**
+     * Публичный конструктор, который создает список и с помощью топологической сортировки выводит текст
+     *
+     * @param mainDir Абсолютный путь к корневой папке
+     */
     public DependencyList(File mainDir) {
         _mainDir = mainDir;
         _resultMap = new HashMap<>();
@@ -21,6 +29,11 @@ public final class DependencyList {
         }
     }
 
+    /**
+     * Приватный метод для прохода по всем директориям
+     *
+     * @param dir Директория из которой выполняется проход
+     */
     private void SearchThroughDirs(File dir) {
         var files = dir.listFiles();
         if (files != null) {
@@ -34,6 +47,11 @@ public final class DependencyList {
         }
     }
 
+    /**
+     * Приватный метод для записи файла в список смежности на основе его содержимого
+     *
+     * @param file Сам файл
+     */
     private void GetFilesParents(File file) {
         try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
             boolean noParents = true;
@@ -82,6 +100,12 @@ public final class DependencyList {
         }
     }
 
+    /**
+     * Приватный метод для топологической сортировки
+     *
+     * @param node node относительно которого начинается сортировка
+     * @return true, если нет циклов и false, если он нашелся(тогда в конструкторе выходит сообщение об этом)
+     */
     private boolean TopologicalSort(Node node) {
         if (node.get_color() == Node.Color.GREY) {
             return false;
@@ -102,6 +126,9 @@ public final class DependencyList {
         return true;
     }
 
+    /**
+     * Приватный метод для печати списка смежности
+     */
     private void Print() {
         for (var item : _resultList) {
             try (BufferedReader fileReader = new BufferedReader(new FileReader(item.get_path()))) {
@@ -118,6 +145,12 @@ public final class DependencyList {
         }
     }
 
+    /**
+     * Приватный метод для доступа по ссылке с элементами списка смежности(для осуществления прохода по ним)
+     *
+     * @param path Путь, по которому ищется node
+     * @return node, если была найдена такая, null иначе
+     */
     private Node GetNode(String path) {
         for (var node : _resultMap.keySet()) {
             if (node != null && Objects.equals(node.get_path(), path)) {
@@ -132,8 +165,20 @@ public final class DependencyList {
         return null;
     }
 
+    /**
+     * Абсолютной путь корневой папки
+     */
     private File _mainDir;
+    /**
+     * Сам список смежности
+     */
     private Map<Node, List<Node>> _resultMap;
+    /**
+     * Итоговый список node, которые необходимо вывести(в порядке индексации)
+     */
     private List<Node> _resultList = new LinkedList<>();
+    /**
+     * "Нулевая" node(если нет родителей, то добавляется к детям NILL => если у NILL нет детей, то есть цикл)
+     */
     private final Node NILL = new Node(null);
 }
