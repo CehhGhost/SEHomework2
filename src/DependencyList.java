@@ -48,7 +48,10 @@ public final class DependencyList {
         try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
             boolean noParents = true;
             String line;
-            Node thisNode = new Node(file.getAbsolutePath());
+            Node thisNode = GetNode(file.getAbsolutePath());
+            if (thisNode == null) {
+                thisNode = new Node(file.getAbsolutePath());
+            }
             do {
                 line = fileReader.readLine();
                 if (line != null && line.contains("require")) {
@@ -67,7 +70,10 @@ public final class DependencyList {
                         }
                     }
                     if (!flag) {
-                        parent = new Node(fileDir.toString());
+                        parent = GetNode(fileDir.toString());
+                        if (parent == null) {
+                            parent = new Node(fileDir.toString());
+                        }
                         _resultMap.put(parent, new ArrayList<>());
                     }
                     _resultMap.get(parent).add(thisNode);
@@ -125,6 +131,11 @@ public final class DependencyList {
         for (var node : _resultMap.keySet()) {
             if (node != null && Objects.equals(node.get_path(), path)) {
                 return node;
+            }
+            for (var value : _resultMap.get(node)) {
+                if (value != null && Objects.equals(value.get_path(), path)) {
+                    return value;
+                }
             }
         }
         return null;
