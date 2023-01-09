@@ -7,16 +7,6 @@ public final class DependencyList {
         _resultMap = new HashMap<>();
         _resultMap.put(NILL, new ArrayList<>());
         SearchThroughDirs(_mainDir);
-        /*for (var key : _resultMap.keySet()) {
-            if (key.get_path() != null) {
-                System.out.print(new File(key.get_path()).getName());
-            }
-            System.out.print(": ");
-            for (var value : _resultMap.get(key)) {
-                System.out.print(new File(value.get_path()).getName() + " ");
-            }
-            System.out.print("\r\n");
-        }*/
         boolean stop = true;
         for (var node : _resultMap.get(NILL)) {
             stop = TopologicalSort(node);
@@ -127,6 +117,7 @@ public final class DependencyList {
             }
         }
     }
+
     private Node GetNode(String path) {
         for (var node : _resultMap.keySet()) {
             if (node != null && Objects.equals(node.get_path(), path)) {
@@ -140,8 +131,9 @@ public final class DependencyList {
         }
         return null;
     }
+
     private File _mainDir;
     private Map<Node, List<Node>> _resultMap;
-    private List<Node> _resultList = new LinkedList<Node>();
+    private List<Node> _resultList = new LinkedList<>();
     private final Node NILL = new Node(null);
 }
